@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.aidesigner/*
+!.aidesigner/.gitkeep
+
+# Local tooling / IDE state — not for the public repo
+.claude/
+.agents/
+.mcp.json
