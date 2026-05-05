@@ -9,8 +9,9 @@ import { llm, MODEL } from "../lib/openrouter.js";
 import { buildSystemPrompt, type RecentPick } from "../lib/prompt.js";
 import { COACHES, findCoachByName, isCoachId, type CoachId } from "../lib/coaches.js";
 import { checkQuota } from "../lib/quota.js";
+import { checkSpamRate, tryAcquireLLM, releaseLLM } from "../lib/ratelimit.js";
 
-const APP_URL = process.env.APP_URL ?? "https://onzeai.com";
+const APP_URL = process.env.APP_URL ?? "https://akyra.io";
 
 export async function chatHandler(ctx: Context) {
   const tg = ctx.from;
@@ -21,6 +22,13 @@ export async function chatHandler(ctx: Context) {
     // BUT: `/dembefric question…` style → route to that coach's chat.
     const head = text.split(/\s+/, 1)[0]!.slice(1).toLowerCase();
     if (!findCoachByName(head)) return;
+  }
+
+  // Anti-burst: max 1 message per 2s per user
+  const burst = checkSpamRate(tg.id);
+  if (!burst.ok) {
+    await ctx.reply(`Doucement — réessaie dans ${Math.ceil(burst.retryAfterMs / 1000)}s.`);
+    return;
   }
 
   const user = await getUserByTelegramId(tg.id);
@@ -83,6 +91,12 @@ export async function chatHandler(ctx: Context) {
     return;
   }
 
+  // LLM concurrency: 1 in-flight call per user
+  if (!tryAcquireLLM(tg.id)) {
+    await ctx.reply("J'écris déjà — patiente une seconde.");
+    return;
+  }
+
   // Persist user message immediately (counts towards quota even if LLM fails)
   await supabase.from("chat_messages").insert({
     user_id: user.id,
@@ -135,10 +149,13 @@ export async function chatHandler(ctx: Context) {
     tokensUsed = completion.usage?.total_tokens ?? null;
   } catch (e) {
     console.error("[chat] OpenRouter error", e);
+    releaseLLM(tg.id);
     await ctx.reply(
       `${coach.name} est injoignable pour 30 secondes (problème côté modèle). Réessaie.`,
     );
     return;
+  } finally {
+    releaseLLM(tg.id);
   }
 
   if (!answer) {

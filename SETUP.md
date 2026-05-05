@@ -160,6 +160,58 @@ and reconciles `user_coaches`.
 
 No setup needed — it's all in code, just keep the `.env.local` Stripe price IDs in sync if you ever recreate products.
 
+## 11. How to push a pick (Claude Code or any automation)
+
+Two equivalent paths.
+
+### A. CLI (recommended from this repo)
+
+```bash
+npx tsx --env-file=.env.local scripts/push-pick.ts \
+  --coach leo \
+  --pick "PSG vainqueur + plus de 2.5 buts" \
+  --cote 2.85 \
+  --fixture "psg-om-2026-05-12" \
+  --reasoning "Mbappé titulaire selon la conf, OM sans Aubameyang."
+```
+
+Or via stdin JSON (handy when scripted):
+```bash
+echo '{"coach_id":"leo","pick_text":"PSG vainqueur","cote":1.85,"fixture_id":"psg-om-2026-05-12","reasoning":"…"}' \
+  | npx tsx --env-file=.env.local scripts/push-pick.ts --stdin
+```
+
+The script writes to `public.picks`. The Supabase Database Webhook fires within ~1s,
+hits the bot's `/broadcast`, which fans the message out to every active subscriber whose
+`user_coaches.coach_id` matches.
+
+### B. HTTP endpoint
+
+`POST https://akyra.io/api/picks` with header `x-picks-secret: $PICKS_INGEST_SECRET` and JSON body:
+```json
+{
+  "coach_id": "leo",
+  "pick_text": "PSG vainqueur + plus de 2.5 buts",
+  "cote": 2.85,
+  "fixture_id": "psg-om-2026-05-12",
+  "reasoning": "Mbappé titulaire selon la conf, OM sans Aubameyang."
+}
+```
+
+Requires `PICKS_INGEST_SECRET` set on Vercel. Use this if a non-CLI tool (n8n, GitHub Actions, etc.) needs to push.
+
+### League routing
+
+`coach_id` ∈ `{ leo (Ligue 1), jack (Premier League), paco (La Liga), tony (Serie A), hans (Bundesliga) }`.
+The bot only sends the pick to users subscribed to that specific coach — pas de cross-pollination
+entre championnats.
+
+### Chat ≠ picks
+
+The OpenRouter chatbot (Gemma) is **only** for the conversation. It uses recent picks as context
+to answer user questions, but the system prompt explicitly forbids it from proposing new tickets in chat.
+New picks always come from the push pipeline above.
+
 ## Out of scope (V1)
 
 - Daily picks generator agent (you'll run it locally and INSERT into `picks`)
