@@ -19,8 +19,8 @@ const steps = [
     n: "03",
     Icon: MessageSquare,
     title: "Tu lui parles comme à un pote.",
-    desc: "Une question sur un joueur, un combiné à valider, un détail tactique ? Tu écris en français normal. Il répond en quelques secondes, 24/7.",
-    label: "Chat illimité",
+    desc: "Une question sur un joueur, un combiné à valider, un détail tactique ? Tu écris en français normal. Il répond en quelques secondes — 3 à 20 questions / jour selon ton plan, ou illimité en All Access.",
+    label: "3 / 20 / ∞ msg/jour",
   },
 ];
 

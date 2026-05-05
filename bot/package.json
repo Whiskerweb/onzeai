@@ -1,0 +1,30 @@
+{
+  "name": "onze-bot",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file=.env src/index.ts",
+    "build": "tsc",
+    "start": "node --env-file=.env dist/index.js",
+    "start:prod": "node dist/index.js",
+    "set-webhook": "tsx --env-file=.env scripts/set-webhook.ts",
+    "delete-webhook": "tsx --env-file=.env scripts/delete-webhook.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "@supabase/supabase-js": "^2.74.0",
+    "grammy": "^1.32.0",
+    "hono": "^4.10.0",
+    "openai": "^4.83.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

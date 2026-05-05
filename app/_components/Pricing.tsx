@@ -1,7 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Check } from "lucide-react";
+import { Check, MessageCircle, Send } from "lucide-react";
+
+type Feature = {
+  text: string;
+  variant?: "core" | "bonus" | "default";
+};
 
 type Plan = {
   id: "solo" | "squad" | "all";
@@ -9,7 +14,7 @@ type Plan = {
   monthly: string;
   annual: string;
   tagline: string;
-  features: string[];
+  features: Feature[];
   cta: string;
   featured?: boolean;
 };
@@ -22,11 +27,17 @@ const plans: Plan[] = [
     annual: "11,90 €",
     tagline: "Un coach, ton championnat préféré.",
     features: [
-      "1 agent au choix parmi les 5",
-      "Signaux quotidiens sur Telegram",
-      "Chat illimité avec ton agent",
-      "Alertes 1h avant chaque match",
-      "Annulation libre, sans embrouille",
+      { text: "1 agent au choix parmi les 5" },
+      {
+        text: "Tous les paris de ton coach reçus sur Telegram",
+        variant: "core",
+      },
+      { text: "Alertes 1h avant chaque match" },
+      {
+        text: "Bonus chat : 3 questions / jour à ton coach",
+        variant: "bonus",
+      },
+      { text: "Annulation libre, sans embrouille" },
     ],
     cta: "Démarrer Solo",
   },
@@ -37,11 +48,18 @@ const plans: Plan[] = [
     annual: "23,90 €",
     tagline: "Trois coachs, trois championnats, combinés multi-leagues.",
     features: [
-      "3 agents au choix",
-      "Combinés inter-championnats analysés",
-      "Priorité sur les matchs Champions League",
-      "Récap stats hebdo",
-      "Alertes blessures et compos en push",
+      { text: "3 agents au choix" },
+      {
+        text: "Tous les paris de tes 3 coachs reçus sur Telegram",
+        variant: "core",
+      },
+      { text: "Combinés inter-championnats analysés" },
+      { text: "Priorité sur les matchs Champions League" },
+      { text: "Récap stats hebdo + alertes blessures en push" },
+      {
+        text: "Bonus chat : 20 questions / jour aux coachs",
+        variant: "bonus",
+      },
     ],
     cta: "Démarrer Squad",
     featured: true,
@@ -53,11 +71,19 @@ const plans: Plan[] = [
     annual: "39,90 €",
     tagline: "Toute la squad. Aucun match qui t'échappe.",
     features: [
-      "Les 5 agents inclus",
-      "Alertes mercato en avant-première",
-      "Stats xG brutes téléchargeables",
-      "Early access aux nouveaux agents",
-      "Sessions Q&A live mensuelles",
+      { text: "Les 5 agents inclus" },
+      {
+        text: "Tous les paris des 5 coachs reçus sur Telegram",
+        variant: "core",
+      },
+      { text: "Alertes mercato en avant-première" },
+      { text: "Stats xG brutes téléchargeables" },
+      { text: "Early access aux nouveaux agents" },
+      { text: "Sessions Q&A live mensuelles" },
+      {
+        text: "Bonus chat : questions illimitées 24/7",
+        variant: "bonus",
+      },
     ],
     cta: "Démarrer All Access",
   },
@@ -144,16 +170,43 @@ export function Pricing() {
               <p className="mt-4 text-sm text-zinc-400">{p.tagline}</p>
 
               <ul className="mt-6 space-y-3 text-sm">
-                {p.features.map((f) => (
-                  <li key={f} className="flex items-start gap-3 text-zinc-200">
-                    <Check className="mt-0.5 size-4 shrink-0 text-onze-pitch-soft" />
-                    {f}
-                  </li>
-                ))}
+                {p.features.map((f) => {
+                  const Icon =
+                    f.variant === "core"
+                      ? Send
+                      : f.variant === "bonus"
+                      ? MessageCircle
+                      : Check;
+                  const iconColor =
+                    f.variant === "core"
+                      ? "text-onze-pitch-soft"
+                      : f.variant === "bonus"
+                      ? "text-zinc-500"
+                      : "text-onze-pitch-soft";
+                  const textColor =
+                    f.variant === "bonus" ? "text-zinc-400" : "text-zinc-200";
+                  return (
+                    <li
+                      key={f.text}
+                      className={`flex items-start gap-3 ${textColor}`}
+                    >
+                      <Icon
+                        className={`mt-0.5 size-4 shrink-0 ${iconColor}`}
+                      />
+                      <span
+                        className={
+                          f.variant === "core" ? "font-semibold text-white" : ""
+                        }
+                      >
+                        {f.text}
+                      </span>
+                    </li>
+                  );
+                })}
               </ul>
 
               <a
-                href="#start"
+                href={`/start?plan=${p.id}`}
                 className={`mt-8 inline-block rounded-lg px-5 py-3 text-center text-sm font-semibold transition-all hover:-translate-y-0.5 ${
                   p.featured
                     ? "bg-onze-pitch text-white hover:bg-onze-pitch-soft"

@@ -26,10 +26,26 @@ export function Hero() {
             {coaches.map((c) => (
               <div
                 key={c.id}
-                className="flex size-8 items-center justify-center rounded-full border-2 border-onze-bg text-[11px] font-bold text-white"
+                className="relative size-8 overflow-hidden rounded-full border-2 border-onze-bg"
                 style={{ backgroundColor: c.color }}
+                title={`${c.name} · ${c.league}`}
               >
-                {c.name.slice(0, 1)}
+                {c.portrait ? (
+                  <img
+                    src={c.portrait}
+                    alt={c.name}
+                    className="absolute inset-0 size-full object-cover"
+                    style={{
+                      objectPosition: "50% 8%",
+                      transform: "scale(1.5)",
+                      transformOrigin: "50% 30%",
+                    }}
+                  />
+                ) : (
+                  <div className="flex size-full items-center justify-center text-[11px] font-bold text-white">
+                    {c.name.slice(0, 1)}
+                  </div>
+                )}
               </div>
             ))}
           </div>

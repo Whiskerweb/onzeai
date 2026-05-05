@@ -12,6 +12,9 @@ import { Testimonials } from "./_components/Testimonials";
 import { Faq } from "./_components/Faq";
 import { FinalCta } from "./_components/FinalCta";
 import { Footer } from "./_components/Footer";
+import { FreePickPopup } from "./_components/FreePickPopup";
+import { FreeMatchBanner } from "./_components/FreeMatchBanner";
+import { StickyFreeButton } from "./_components/StickyFreeButton";
 
 export default function Home() {
   return (
@@ -19,17 +22,21 @@ export default function Home() {
       <PromoBar />
       <Nav />
       <Hero />
-      <SubHero />
       <CoachesShowcase />
+      <FreeMatchBanner />
+      <SubHero />
       <CharlyWhatsapp />
       <Capabilities />
       <Integrations />
       <Steps />
+      <FreeMatchBanner />
       <Pricing />
       <Testimonials />
       <Faq />
       <FinalCta />
       <Footer />
+      <FreePickPopup />
+      <StickyFreeButton />
     </>
   );
 }

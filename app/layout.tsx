@@ -7,7 +7,7 @@ const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 export const metadata: Metadata = {
   title: "Onze.ai — Cinq coachs IA. Cinq championnats. Plus jamais en aveugle.",
   description:
-    "Cinq coachs IA, un par grand championnat européen. Signaux quotidiens sur Telegram, chat illimité avec ton coach. xG, blessures, formes, météo : il a tout en tête. À partir de 14,90€/mois.",
+    "Cinq coachs IA, un par grand championnat européen. Signaux quotidiens sur Telegram, chat avec ton coach (3 / 20 questions par jour, ou illimité). xG, blessures, formes, météo — il a tout en tête. À partir de 14,90€/mois.",
   icons: {
     icon: "/onze/favicon.png",
     apple: "/onze/webclip.png",
