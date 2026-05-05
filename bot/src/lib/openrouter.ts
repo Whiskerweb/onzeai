@@ -15,4 +15,4 @@ export const llm = new OpenAI({
 });
 
 export const MODEL =
-  process.env.OPENROUTER_MODEL ?? "google/gemma-4-31b-it:free";
+  process.env.OPENROUTER_MODEL ?? "meta-llama/llama-3.3-70b-instruct:free";
