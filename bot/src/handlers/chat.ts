@@ -30,9 +30,16 @@ export async function chatHandler(ctx: Context) {
   }
 
   if (!user.subscription_status || !ACTIVE_STATUSES.has(user.subscription_status)) {
-    await ctx.reply(
-      `Ton abonnement n'est pas actif (statut : ${user.subscription_status ?? "inconnu"}). Reprends depuis ${APP_URL}/start.`,
-    );
+    if (user.subscription_status === "terminated" || user.subscription_status === "canceled") {
+      await ctx.reply(
+        `Ton compte est désactivé. Pour réactiver et choisir un nouveau plan : ${APP_URL}/start.`,
+      );
+    } else {
+      // past_due / unpaid / incomplete — there's still hope, the cron hasn't kicked in
+      await ctx.reply(
+        `Ton paiement n'est pas passé. Vérifie ta CB ou mets-la à jour, sinon ton accès sera coupé sous peu. Reprends depuis ${APP_URL}/start si besoin.`,
+      );
+    }
     return;
   }
 
@@ -147,10 +154,14 @@ export async function chatHandler(ctx: Context) {
     tokens_used: tokensUsed,
   });
 
+  // Visual coach prefix so the user always knows who's speaking
+  const prefix = `${coach.flag} *${coach.name}* :\n\n`;
+  const reply = prefix + answer;
+
   // Telegram has 4096 char limit — chunk if needed.
-  const chunks = chunk(answer, 3800);
+  const chunks = chunk(reply, 3800);
   for (const c of chunks) {
-    await ctx.reply(c);
+    await ctx.reply(c, { parse_mode: "Markdown" });
   }
 
   if (quota.remaining - 1 <= 1 && Number.isFinite(quota.limit)) {

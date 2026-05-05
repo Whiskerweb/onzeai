@@ -4,6 +4,7 @@ import { helpHandler } from "./handlers/help.js";
 import { coachCommandHandler, coachListHandler } from "./handlers/coach.js";
 import { quotaCommandHandler } from "./handlers/quota.js";
 import { chatHandler } from "./handlers/chat.js";
+import { upgradeHandler } from "./handlers/upgrade.js";
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 if (!token) {
@@ -17,6 +18,7 @@ bot.command("help", helpHandler);
 bot.command("coach", coachCommandHandler);
 bot.command("coachs", coachListHandler);
 bot.command("quota", quotaCommandHandler);
+bot.command("upgrade", upgradeHandler);
 
 // All other text messages (including the /<coachName> prefix style) → chat
 bot.on("message:text", chatHandler);

@@ -44,3 +44,12 @@ export function getStripePriceId(plan: PlanId): string {
   }
   return v;
 }
+
+/** Reverse of getStripePriceId: maps a Stripe price ID back to its plan, or null if unknown. */
+export function planFromPriceId(priceId: string | null | undefined): PlanId | null {
+  if (!priceId) return null;
+  for (const id of PLAN_IDS) {
+    if (process.env[PLAN_CONFIG[id].priceEnv] === priceId) return id;
+  }
+  return null;
+}

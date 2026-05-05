@@ -7,9 +7,11 @@ remains is filling secrets and provisioning the third-party services.
 
 Project: `https://supabase.com/dashboard/project/thcwlydkvkbahospltoo`
 
-**Apply the migration** (one of):
+**Apply the migrations** (one of):
 
-- **Dashboard SQL editor** → paste the content of `supabase/migrations/0001_onzeai_init.sql` and run.
+- **Dashboard SQL editor** → paste the content of each file in `supabase/migrations/` (in order) and run.
+  - `0001_onzeai_init.sql` — initial schema
+  - `0002_lifecycle.sql` — adds `purpose` to auth_tokens + `locked_at` on users (for upgrade flow + lifecycle cron)
 - **CLI**:
   ```
   supabase login
@@ -130,10 +132,39 @@ select * from public.onze_chat_messages order by created_at desc limit 10;
 select * from public.onze_pick_deliveries order by delivered_at desc limit 10;
 ```
 
+## 9. Lifecycle cron (Vercel)
+
+`vercel.json` declares a daily cron at 01:00 UTC hitting `/api/cron/lifecycle`. The handler:
+
+- **D+9 soft lock** — users in `past_due`/`unpaid`/`incomplete` with `trial_ends_at < now() − 2 days`
+  → cancel Stripe subscription, set `subscription_status='terminated'` + `locked_at=now()`,
+  send a Telegram message announcing the lock.
+- **D+39 hard delete** — users with `subscription_status='terminated'` and `locked_at < now() − 30 days`
+  → DELETE FROM users (CASCADE removes user_coaches, chat_messages, pick_deliveries, auth_tokens).
+
+Add these env vars on Vercel (Settings → Environment Variables):
+- `CRON_SECRET` (random 32-byte hex; Vercel sends `Authorization: Bearer <CRON_SECRET>` automatically)
+- `TELEGRAM_BOT_TOKEN` (already in bot/.env, web uses it for the lock notification)
+
+You can trigger the cron manually for testing:
+```
+curl https://akyra.io/api/cron/lifecycle -H "Authorization: Bearer $CRON_SECRET"
+```
+
+## 10. Upgrade flow
+
+Users change plan / coachs by typing `/upgrade` in the bot. The bot replies with a 30-min magic link
+to `https://akyra.io/upgrade?token=…`. The web wizard pre-checks current coachs, lets the user pick a
+new plan + coachs, and POSTs to `/api/upgrade` which calls `stripe.subscriptions.update(..., proration_behavior:'create_prorations')`
+and reconciles `user_coaches`.
+
+No setup needed — it's all in code, just keep the `.env.local` Stripe price IDs in sync if you ever recreate products.
+
 ## Out of scope (V1)
 
-- Daily picks generator agent (you'll run it locally and INSERT into `onze_picks`)
+- Daily picks generator agent (you'll run it locally and INSERT into `picks`)
 - Web dashboard for the user (everything happens in Telegram)
 - Stripe Customer Portal (V1.5)
-- Multi-bot setup (V2 — for now, all coaches share one bot)
-- Retry logic for Telegram delivery failures (errors logged in `onze_pick_deliveries.error`)
+- Multi-bot setup (V2 — for now, all coachs share one bot)
+- Retry logic for Telegram delivery failures (errors logged in `pick_deliveries.error`)
+- Annual prices (only monthly created)

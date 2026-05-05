@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { planFromPriceId } from "@/lib/plan-config";
 
 export const runtime = "nodejs";
 // Stripe needs the raw body to verify the signature; opt out of any caching.
@@ -50,12 +51,16 @@ export async function POST(req: Request) {
 }
 
 async function syncSubscription(sub: Stripe.Subscription, overrideStatus?: string) {
-  const periodEnd = sub.items?.data?.[0]?.current_period_end;
+  const item = sub.items?.data?.[0];
+  const periodEnd = item?.current_period_end;
+  const newPlan = planFromPriceId(item?.price?.id ?? null);
+
   const updates: Record<string, unknown> = {
     subscription_status: overrideStatus ?? sub.status,
     current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
     trial_ends_at: sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null,
   };
+  if (newPlan) updates.plan = newPlan;
 
   await getSupabaseAdmin()
     .from("users")
