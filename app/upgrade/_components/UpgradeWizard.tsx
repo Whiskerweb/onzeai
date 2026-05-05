@@ -210,11 +210,14 @@ export function UpgradeWizard({ token, currentPlan, currentCoachIds }: Props) {
                       )}
                     </div>
                     <div className="text-xs text-zinc-400">
-                      {coach.flag} {coach.league}
+                      {coach.flag} {coach.sport}
                     </div>
                   </div>
                 </div>
                 <p className="mt-3 line-clamp-2 text-xs text-zinc-400">{coach.vibe}</p>
+                <p className="mt-2 line-clamp-1 text-[10px] font-medium uppercase tracking-wider text-zinc-500">
+                  {coach.competitionsShort}
+                </p>
               </button>
             );
           })}

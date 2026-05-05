@@ -13,9 +13,13 @@ export async function coachCommandHandler(ctx: Context) {
   }
 
   const arg = (ctx.match ?? "").toString().trim();
+  const allNames = Object.values(COACHES)
+    .map((c) => c.name)
+    .join(", ");
+  const exampleName = COACHES.foot.name.toLowerCase();
   if (!arg) {
     await ctx.reply(
-      "Utilise `/coach <nom>` (ex: `/coach dembefric`). Ou `/coachs` pour voir ta sélection.",
+      `Utilise \`/coach <nom>\` (ex: \`/coach ${exampleName}\`). Ou \`/coachs\` pour voir ta sélection.`,
       { parse_mode: "Markdown" },
     );
     return;
@@ -23,7 +27,7 @@ export async function coachCommandHandler(ctx: Context) {
 
   const target = findCoachByName(arg);
   if (!target) {
-    await ctx.reply(`Coach inconnu : "${arg}". Coachs : Dembefric, Mo Sawin, Belligagne, Vlachance, Kagnotte.`);
+    await ctx.reply(`Coach inconnu : "${arg}". Coachs : ${allNames}.`);
     return;
   }
 
@@ -61,7 +65,7 @@ export async function coachListHandler(ctx: Context) {
     .map((id) => {
       const c = COACHES[id];
       const active = user.active_coach_id === id ? " ← actif" : "";
-      return `• ${c.flag} *${c.name}* (${c.league})${active}`;
+      return `• ${c.flag} *${c.name}* (${c.sport})${active}`;
     });
   await ctx.reply(lines.join("\n"), { parse_mode: "Markdown" });
 }

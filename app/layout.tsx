@@ -5,9 +5,9 @@ import "./globals.css";
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 
 export const metadata: Metadata = {
-  title: "Onze.ai — Cinq coachs IA. Cinq championnats. Plus jamais en aveugle.",
+  title: "Onze.ai — 4 coachs IA. Foot, basket, tennis, UFC. Toutes les ligues majeures.",
   description:
-    "Cinq coachs IA, un par grand championnat européen. Signaux quotidiens sur Telegram, chat avec ton coach (3 / 20 questions par jour, ou illimité). xG, blessures, formes, météo — il a tout en tête. À partir de 14,90€/mois.",
+    "4 coachs IA, un par sport. Foot (L1, PL, Liga, Serie A, Bundes, CL, EL), basket (NBA, EuroLeague, WNBA), tennis (les 4 Grand Chelems + Masters 1000), UFC (PPV, Fight Night, Bellator, PFL). Paris en push Telegram, chat avec ton coach. À partir de 14,90€/mois.",
   icons: {
     icon: "/onze/favicon.png",
     apple: "/onze/webclip.png",
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Onze.ai — Le tipster qui dort jamais",
     description:
-      "Reçois les signaux de ton coach IA sur Telegram. Parle-lui comme à un pote qui aurait mémorisé Opta.",
+      "Reçois les paris de ton coach IA direct sur Telegram. Foot, basket, tennis, UFC. Toutes les ligues majeures.",
     locale: "fr_FR",
   },
 };

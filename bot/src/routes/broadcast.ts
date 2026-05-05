@@ -94,7 +94,7 @@ export async function broadcastRoute(c: HonoContext) {
 
 function formatPick(p: PickRecord): string {
   const coach = isCoachId(p.coach_id) ? COACHES[p.coach_id] : null;
-  const header = coach ? `${coach.flag} *${coach.name}* (${coach.league})` : "Onze.ai";
+  const header = coach ? `${coach.flag} *${coach.name}* (${coach.sport})` : "Onze.ai";
   const cote = p.cote != null ? ` · cote *×${p.cote}*` : "";
   const fixture = p.fixture_id ? `\n_${p.fixture_id}_` : "";
   const reasoning = p.reasoning ? `\n\n${p.reasoning}` : "";

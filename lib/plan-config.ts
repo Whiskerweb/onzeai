@@ -13,7 +13,7 @@ export const PLAN_CONFIG = {
   squad: {
     id: "squad" as const,
     name: "Squad",
-    maxCoaches: 3,
+    maxCoaches: 2,
     monthlyMessages: 20,
     monthlyEUR: 29.9,
     annualEUR: 23.9,
@@ -22,7 +22,7 @@ export const PLAN_CONFIG = {
   all: {
     id: "all" as const,
     name: "All Access",
-    maxCoaches: 5,
+    maxCoaches: 4,
     monthlyMessages: Infinity,
     monthlyEUR: 49.9,
     annualEUR: 39.9,

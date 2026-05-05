@@ -4,21 +4,21 @@
 //
 // Usage:
 //   npx tsx --env-file=.env.local scripts/push-pick.ts \
-//     --coach leo \
+//     --coach foot \
 //     --pick "PSG vainqueur + plus de 2.5 buts" \
 //     --cote 2.85 \
 //     --fixture "psg-om-2026-05-12" \
 //     --reasoning "Mbappé titulaire selon la conf, OM sans Aubameyang."
 //
 // Or pipe a JSON object on stdin:
-//   echo '{"coach_id":"leo","pick_text":"...","cote":2.85}' \
+//   echo '{"coach_id":"foot","pick_text":"...","cote":2.85}' \
 //     | npx tsx --env-file=.env.local scripts/push-pick.ts --stdin
 //
 // Required env: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 
 import { createClient } from "@supabase/supabase-js";
 
-const COACH_IDS = ["leo", "jack", "paco", "tony", "hans"] as const;
+const COACH_IDS = ["foot", "basket", "tennis", "ufc"] as const;
 type CoachId = (typeof COACH_IDS)[number];
 
 type PickInput = {

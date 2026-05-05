@@ -94,7 +94,7 @@ export async function startHandler(ctx: Context) {
       "Tu vas recevoir leurs paris ici dès qu'ils sont publiés.",
       "",
       "Pour discuter avec un coach, écris-moi simplement.",
-      "Si tu suis plusieurs coachs : `/coach <nom>` pour basculer (ex: `/coach dembefric`), ou préfixe avec `/dembefric ton message…`.",
+      `Si tu suis plusieurs coachs : \`/coach <nom>\` pour basculer (ex: \`/coach ${COACHES.foot.name.toLowerCase()}\`), ou préfixe avec \`/${COACHES.foot.name.toLowerCase()} ton message…\`.`,
       "",
       "Tape /help pour la liste des commandes.",
     ].join("\n"),

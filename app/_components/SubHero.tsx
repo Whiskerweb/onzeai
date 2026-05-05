@@ -1,7 +1,7 @@
 const metrics = [
   { value: "2 314", label: "Parieurs actifs", note: "Saison 25–26" },
-  { value: "23 645", label: "Signaux émis", note: "12 derniers mois" },
-  { value: "+9,3%", label: "Yield moyen", note: "Moyenne des 5 agents" },
+  { value: "23 645", label: "Paris envoyés", note: "12 derniers mois" },
+  { value: "+9,3%", label: "Yield moyen", note: "Moyenne des 4 coachs" },
   { value: "4,9 / 5", label: "Note moyenne", note: "Sur 1 870 avis" },
 ];
 
@@ -13,8 +13,8 @@ export function SubHero() {
         <span className="text-zinc-400">À partir de 14,90 €/mois.</span>
       </h2>
       <p className="mx-auto mt-4 max-w-xl text-zinc-400">
-        Onze.ai n&apos;est pas un opérateur de paris. C&apos;est de l&apos;analyse et des
-        signaux. Tu places où tu veux : Winamax, Betclic, Unibet — peu importe.
+        Onze.ai n&apos;est pas un opérateur. C&apos;est de l&apos;analyse, des paris à suivre.
+        Tu places où tu veux : Winamax, Betclic, Unibet, peu importe.
       </p>
 
       <div className="mx-auto mt-12 grid max-w-5xl grid-cols-2 gap-3 md:grid-cols-4">

@@ -8,14 +8,14 @@ export function AgentsGrid() {
           La squad
         </div>
         <h2 className="text-balance text-4xl font-medium tracking-tight md:text-5xl">
-          Cinq personnalités. Cinq championnats. Une seule équipe.
+          Quatre personnalités. Quatre sports. Une seule équipe.
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-zinc-400">
-          Chaque coach a sa ville, sa voix, ses sources. Tu choisis le tien — ou les cinq.
+          Chacun couvre toutes les ligues majeures de son sport. Tu prends 1, 2, ou les 4.
         </p>
       </div>
 
-      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-5">
+      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-4">
         {coaches.map((c) => (
           <a
             key={c.id}
@@ -36,9 +36,7 @@ export function AgentsGrid() {
                 src={c.portrait}
                 alt={c.name}
                 className={`pointer-events-none absolute z-0 h-auto max-w-none object-contain object-bottom drop-shadow-2xl transition-transform duration-500 group-hover:scale-[1.04] ${
-                  c.id === "tony"
-                    ? "inset-x-[8%] bottom-2 w-[84%]"
-                    : c.id === "leo"
+                  c.id === "foot"
                     ? "-inset-x-[20%] -bottom-2 w-[140%]"
                     : "-inset-x-[8%] bottom-0 w-[116%]"
                 }`}
@@ -58,7 +56,10 @@ export function AgentsGrid() {
                 {c.name}
               </div>
               <div className="mt-1 text-xs font-medium uppercase tracking-widest text-white/70">
-                {c.league}
+                {c.sport}
+              </div>
+              <div className="mt-1 line-clamp-2 text-[10px] font-medium leading-snug text-white/60">
+                {c.competitionsShort}
               </div>
               <div className="mt-3 flex items-center gap-2 text-[11px] font-semibold text-white/90">
                 <span

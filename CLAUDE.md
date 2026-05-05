@@ -2,23 +2,26 @@
 
 # Onze.ai (akyra.io)
 
-SaaS de pronostics foot avec 5 coachs IA (un par top-5 championnat européen).
-L'user paye un abonnement Stripe (Solo / Squad / All Access), reçoit les paris
-sur Telegram via @OnziaBot, et peut chatter avec ses coachs (3/20/∞ messages
-chat par jour selon le plan).
+SaaS de pronostics multi-sport (foot, basket, tennis, UFC) avec 4 coachs IA, un
+par sport. L'user paye un abonnement Stripe (Solo / Squad / All Access), reçoit
+les paris sur Telegram via @OnziaBot, et peut chatter avec ses coachs (3/20/∞
+messages chat par jour selon le plan).
 
-## Coach IDs (routing par championnat)
+## Coach IDs (routing par sport)
 
-| id | persona | championnat | flag |
-|------|------------|-----------------|------|
-| `leo` | Dembefric | Ligue 1 | 🇫🇷 |
-| `jack` | Mo Sawin | Premier League | 🏴󠁧󠁢󠁥󠁮󠁧󠁿 |
-| `paco` | Belligagne | La Liga | 🇪🇸 |
-| `tony` | Vlachance | Serie A | 🇮🇹 |
-| `hans` | Kagnotte | Bundesliga | 🇩🇪 |
+| id | persona | sport | flag |
+|---|---|---|---|
+| `foot` | Dembefric | Football (top-5 europe + UCL/UEL) | ⚽ |
+| `basket` | Curritique | Basketball (NBA + EuroLeague) | 🏀 |
+| `tennis` | Federace | Tennis (ATP + WTA) | 🎾 |
+| `ufc` | McTriple | MMA / UFC | 🥊 |
 
 Source de vérité côté web : `app/_data/coaches.ts`.
 Copie côté bot (pour les system prompts) : `bot/src/lib/coaches.ts` — garder en sync.
+
+> **Note historique** : avant le pivot multi-sport (migration `0003_sport_pivot_remap.sql`),
+> les 5 anciens coachs foot (`leo`, `jack`, `paco`, `tony`, `hans`) ont été remappés vers
+> le seul `foot`. La migration est idempotente.
 
 ## Architecture
 
@@ -51,12 +54,17 @@ Je traduis et lance :
 
 ```bash
 npx tsx --env-file=.env.local scripts/push-pick.ts \
-  --coach <leo|jack|paco|tony|hans> \
+  --coach <foot|basket|tennis|ufc> \
   --pick "<bet text>" \
   --cote <number, optionnel> \
   --fixture "<id, optionnel>" \
   --reasoning "<why, optionnel>"
 ```
+
+> **Préfère le pipeline agents** (`/agents/`) si la donnée temps-réel est ingérée :
+> `cd agents && npx tsx --env-file=.env src/jobs/analyze.ts --sport foot`. Le
+> push manuel ci-dessus reste valide pour les paris que tu décides hors-pipeline
+> (intuition, info privée, scénario que le modèle ne voit pas).
 
 Effet : INSERT dans `public.picks` → Database Webhook Supabase → bot `/broadcast`
 → message Telegram **uniquement** aux users dont `user_coaches.coach_id` matche
@@ -150,6 +158,8 @@ gcloud compute ssh onze-bot --zone=europe-west9-a \
 
 ## Tables Supabase (project `thcwlydkvkbahospltoo`)
 
+### Tables produit (existantes)
+
 | Table | Rôle |
 |-------|------|
 | `users` | identité, plan, status, telegram_id, stripe_*, locked_at |
@@ -159,7 +169,122 @@ gcloud compute ssh onze-bot --zone=europe-west9-a \
 | `pick_deliveries` | tracking par-user (telegram_message_id, error) |
 | `chat_messages` | historique chat (user_id, coach_id, role, content) |
 
+### Knowledge base (migration 0004, alimentée par les agents)
+
+| Table | Rôle |
+|---|---|
+| `sports` | référentiel des 4 sports (`foot`,`basket`,`tennis`,`ufc`) |
+| `leagues` | ligues / compétitions (L1, NBA, ATP, UFC, …), avec `ext_ids` jsonb |
+| `teams` | équipes — résolues par nom dans une ligue, `ext_ids` pour cross-API |
+| `players` | joueurs (utile pour stats player + injuries) |
+| `fixtures` | matches programmés / live / finis ; clé soft = `ext_ids->>provider` |
+| `odds_snapshots` | timeline des cotes (par book, market, side, line) — append-only |
+| `stats_team` | stats équipe (xG, ORtg, ELO, …) timeline |
+| `stats_player` | stats joueur (PRA, 1st-serve %, ko_rate, …) timeline |
+| `news_items` | articles RSS / scrapes, avec `embedding vector(1536)` pour future RAG chat |
+| `injuries` | blessures actives par joueur |
+| `agent_runs` | trace des cycles ingest/analyze (success/error, métriques) |
+| `analyses` | output Claude par fixture (decision push/pass/watch + reasoning), back-ref `pick_id` |
+
 RLS activée sur tout, policies = aucune (service-role-only).
+
+## Agents sport-spécialisés (`/agents/`)
+
+Workspace Node séparé qui tourne sur la VM GCP `bot.akyra.io` à côté du bot.
+
+```
+/agents/
+├── package.json                tsx + @anthropic-ai/sdk + @supabase/supabase-js + openai (embeddings)
+├── tsconfig.json               ESM, NodeNext, strict, build vers dist/
+├── sports-bettor-pro.md        COPIE de ~/.claude/skills/sports-bettor-pro/SKILL.md
+│                               (system prompt méthodologique de l'analyse)
+├── src/
+│   ├── shared/                 helpers communs
+│   │   ├── config.ts           env via zod ; SPORTS = ['foot','basket','tennis','ufc']
+│   │   ├── supabase.ts         client service-role
+│   │   ├── llm.ts              Anthropic SDK + cache_control sur le system prompt
+│   │   ├── embed.ts            OpenAI text-embedding-3-small (1536d)
+│   │   ├── push-pick.ts        POST /api/picks (réutilise le pipeline existant)
+│   │   ├── devig.ts            multiplicatif + power method
+│   │   ├── fetch.ts            fetch + retry + per-host concurrency (p-limit)
+│   │   ├── runs.ts             withRun() ↔ public.agent_runs
+│   │   ├── types.ts            schéma zod AnalysisOutput (validation LLM)
+│   │   └── sources/            wrappers data : oddsapi, footballdata, understat,
+│   │                           rss, balldontlie, tennisabstract, ufcstats, fbref(stub)
+│   ├── ingest/{foot,basket,tennis,ufc}.ts    pipeline d'ingestion par sport
+│   ├── analyze/{foot,basket,tennis,ufc}.ts   pipeline d'analyse par sport
+│   ├── analyze/foot.addon.ts                 add-on system prompt foot-spécifique
+│   └── jobs/{ingest,analyze}.ts              CLI entry points (--sport, --fixture-id)
+└── systemd/                                  templates pour la VM (à créer phase deploy)
+```
+
+### Pipeline d'analyse (par sport)
+
+```
+ingest cron N h  → fetch fixtures + odds + stats + news → upsert knowledge DB
+                                                                ↓
+analyze cron M h → SELECT fixtures next 48h → build context bundle (stats/odds/news/injuries)
+                  → call Claude (system: sports-bettor-pro.md + addon sport)
+                  → output JSON (decision/edge/recommended_price/reasoning)
+                  → INSERT public.analyses
+                  → if decision='push' && edge>=MIN_EDGE_PCT && cap journalier non atteint:
+                        POST /api/picks (existant) → Supabase webhook → bot/broadcast → Telegram
+```
+
+Source de vérité méthodologique : skill `~/.claude/skills/sports-bettor-pro/SKILL.md`.
+La copie embarquée `agents/sports-bettor-pro.md` doit rester en sync :
+```bash
+cp ~/.claude/skills/sports-bettor-pro/SKILL.md agents/sports-bettor-pro.md
+```
+
+### Status (2026-05-05)
+
+- ✅ Migrations `0003_sport_pivot_remap.sql` + `0004_knowledge_base.sql` appliquées remote
+- ✅ Workspace `agents/` scaffolded, typecheck + build OK
+- ✅ **4 pipelines complets** (ingest + analyze + addon par sport) :
+  - **foot** : football-data.org + the-odds-api + Understat (xG) + RSS L'Équipe/BBC
+  - **basket** : balldontlie (NBA fixtures) + the-odds-api (NBA + EuroLeague) + RSS ESPN/BBC
+  - **tennis** : the-odds-api avec discovery dynamique des tournois actifs + RSS ATP/WTA
+  - **ufc** : the-odds-api `mma_mixed_martial_arts` + RSS MMA Junkie/Bloody Elbow
+- ⚠️ Pipeline pas encore testé end-to-end (besoin `agents/.env`) — task #11
+- ⚠️ Déploiement VM + systemd timers = non fait — task #13
+
+### Commandes utiles
+
+```bash
+# Setup
+cd agents && cp .env.example .env  # remplir les clés
+npm install
+
+# Dev (depuis la racine du repo, après .env rempli)
+cd agents && npx tsx --env-file=.env src/jobs/ingest.ts --sport foot
+cd agents && DRY_RUN=1 npx tsx --env-file=.env src/jobs/analyze.ts --sport foot
+cd agents && npx tsx --env-file=.env src/jobs/analyze.ts --sport foot --fixture-id <uuid>
+
+# Build
+cd agents && npx tsc
+
+# Smoke test (doit échouer proprement avec liste des env manquants)
+cd agents && node dist/jobs/ingest.js --sport foot
+```
+
+### Variables d'environnement (`agents/.env`)
+
+```
+SUPABASE_URL                       # https://thcwlydkvkbahospltoo.supabase.co
+SUPABASE_SERVICE_ROLE_KEY          # service_role key
+PICKS_INGEST_URL                   # https://akyra.io/api/picks
+PICKS_INGEST_SECRET                # secret partagé avec /api/picks
+ANTHROPIC_API_KEY                  # clé Anthropic API (Claude Haiku 4.5 par défaut)
+ANALYZE_MODEL                      # claude-haiku-4-5 | claude-sonnet-4-5
+OPENAI_API_KEY                     # pour embeddings text-embedding-3-small
+ODDS_API_KEY                       # the-odds-api.com (free 500/mois)
+FOOTBALL_DATA_TOKEN                # football-data.org (free 10/min)
+BALLDONTLIE_API_KEY                # optionnel, balldontlie.io
+DRY_RUN                            # 1 pour bloquer les pushes (analyse seule)
+PUSH_DAILY_CAP_PER_COACH           # safety cap (défaut 2)
+MIN_EDGE_PCT                       # gate min edge pour push (défaut 4)
+```
 
 ## Don'ts
 
@@ -170,6 +295,12 @@ RLS activée sur tout, policies = aucune (service-role-only).
   `bot/src/lib/coaches.ts`.
 - ❌ Ne run pas `gcloud compute instances delete` ou `supabase db reset` sans
   confirmation explicite — destructif.
+- ❌ Ne modifie pas `agents/sports-bettor-pro.md` directement — c'est une copie
+  du skill local. Modifie `~/.claude/skills/sports-bettor-pro/SKILL.md` puis
+  ré-exécute le `cp` documenté ci-dessus.
+- ❌ Ne pousse pas un pick depuis l'agent sans avoir log la cote au moment du
+  push (le pipeline le fait via `analyses.recommended_price`). Sans la cote
+  prise on ne peut pas mesurer le CLV — la pipeline n'a plus aucune valeur.
 
 ## Documents complémentaires
 

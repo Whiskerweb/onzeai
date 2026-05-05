@@ -77,7 +77,7 @@ export function FreePickPopup() {
         <div className="relative p-5">
           <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-emerald-400">
             <span className="size-1.5 animate-pulse rounded-full bg-emerald-400" />
-            Prochain match · {relative}
+            Prochain event · {relative}
           </div>
 
           <h3 className="mb-1 flex items-center gap-1.5 text-base font-bold leading-tight text-white">
@@ -89,7 +89,7 @@ export function FreePickPopup() {
               {match.home} – {match.away}
             </span>{" "}
             · {match.kickoff}, {match.flag} {match.league}. L&apos;analyse
-            complète de {match.coachName}, offerte pour ton premier match.
+            complète de {match.coachName}, offerte pour ton premier event.
           </p>
 
           {/* Locked preview — cote dévoilée, le reste flouté */}
@@ -142,7 +142,7 @@ export function FreePickPopup() {
             <span className="size-1.5 animate-pulse rounded-full bg-emerald-400" />
             <span>
               <span className="font-bold text-emerald-400">{unlocked}</span>{" "}
-              parieurs débloqués pour ce match
+              parieurs débloqués pour cet event
             </span>
           </div>
           <p className="mt-1 text-center text-[10px] text-zinc-600">

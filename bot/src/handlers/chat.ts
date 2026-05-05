@@ -19,7 +19,7 @@ export async function chatHandler(ctx: Context) {
   if (!tg || !text) return;
   // Ignore commands here — they're routed via dedicated handlers.
   if (text.startsWith("/")) {
-    // BUT: `/dembefric question…` style → route to that coach's chat.
+    // BUT: `/<coachname> question…` style → route to that coach's chat.
     const head = text.split(/\s+/, 1)[0]!.slice(1).toLowerCase();
     if (!findCoachByName(head)) return;
   }

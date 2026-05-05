@@ -28,7 +28,7 @@ export function Hero() {
                 key={c.id}
                 className="relative size-8 overflow-hidden rounded-full border-2 border-onze-bg"
                 style={{ backgroundColor: c.color }}
-                title={`${c.name} · ${c.league}`}
+                title={`${c.name} · ${c.sport}`}
               >
                 {c.portrait ? (
                   <img
@@ -51,19 +51,19 @@ export function Hero() {
           </div>
           <div className="mx-1 h-4 w-px bg-white/20" />
           <span className="text-xs font-semibold tracking-wide text-zinc-300">
-            Saison 25–26 · 5 coachs · 5 championnats
+            Saison 25–26 · Foot · Basket · Tennis · UFC
           </span>
         </div>
 
         <h1 className="mb-6 text-balance text-5xl font-medium leading-[1.05] tracking-tighter text-white drop-shadow-2xl md:text-7xl">
-          Cinq coachs IA. Cinq championnats.
+          Quatre coachs IA. Foot, basket, tennis, UFC.
           <br className="hidden md:block" />{" "}
           <span className="text-gradient-pitch">Plus jamais en aveugle.</span>
         </h1>
 
         <p className="mb-8 max-w-2xl text-balance text-base text-zinc-400 md:text-lg">
-          Tu reçois leurs signaux sur Telegram. Tu peux leur parler comme à un pote
-          qui aurait mémorisé Opta. xG, blessures, formes, météo — ils ont tout en tête.
+          Toutes les ligues majeures de chaque sport. Tu reçois leurs paris direct sur Telegram.
+          Tu leur parles comme à un pote qui aurait bouffé toutes les stats. C&apos;est tout.
         </p>
 
         <div className="mb-8 flex items-center gap-2 text-sm font-medium">
@@ -82,7 +82,7 @@ export function Hero() {
             href="#tarifs"
             className="w-full rounded-lg bg-onze-pitch px-8 py-4 text-[15px] font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-onze-pitch-soft sm:w-auto"
           >
-            Choisir mon coach
+            Démarrer 7 jours gratuits
           </a>
           <a
             href="#coachs"
@@ -103,7 +103,7 @@ export function Hero() {
           </div>
           <div>
             <div className="text-[11px] font-semibold uppercase tracking-widest text-onze-pitch-soft">
-              Live · Dembefric · Ligue 1
+              Live · Dembefric · Football
             </div>
             <div className="text-[13px] text-zinc-200">
               PSG-OM · +2,5 buts cote 1,78 — Donnarumma fragile, Marquinhos out.

@@ -17,9 +17,12 @@ export function CoachesShowcase() {
           La squad
         </div>
         <h2 className="text-balance text-4xl font-medium tracking-tight md:text-5xl">
-          Cinq coachs. Cinq championnats.{" "}
+          Quatre coachs. Quatre sports.{" "}
           <span className="text-zinc-500">Clique sur ta tête.</span>
         </h2>
+        <p className="mx-auto mt-4 max-w-2xl text-sm text-zinc-400">
+          Chacun couvre toutes les compétitions majeures de son sport. Pas une ligue. Pas une coupe. Toutes.
+        </p>
       </div>
 
       {/* Avatar strip */}
@@ -80,7 +83,7 @@ export function CoachesShowcase() {
                     isActive ? "text-zinc-400" : "text-zinc-600"
                   }`}
                 >
-                  {c.flag} {c.league}
+                  {c.flag} {c.sport}
                 </div>
               </div>
             </button>
@@ -146,7 +149,7 @@ export function CoachesShowcase() {
                 }}
               >
                 <div className="text-[10px] font-semibold uppercase tracking-[0.25em] text-zinc-500">
-                  Nº {active.number} · {active.flag} {active.league}
+                  Nº {active.number} · {active.flag} {active.sport}
                 </div>
                 <div className="text-5xl font-bold leading-none tracking-tighter text-white md:text-7xl">
                   {active.name}
@@ -175,7 +178,7 @@ export function CoachesShowcase() {
               </div>
               <div className="hidden rounded-2xl border border-white/10 bg-onze-bg/85 px-4 py-2.5 backdrop-blur-xl sm:block">
                 <div className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
-                  Matchs
+                  Events
                 </div>
                 <div className="text-2xl font-bold leading-none text-white">
                   {active.stats.matches.toLocaleString("fr-FR")}
@@ -193,7 +196,18 @@ export function CoachesShowcase() {
             <h2 className="mb-5 text-balance text-3xl font-medium leading-tight tracking-tight md:text-4xl">
               {active.headline}
             </h2>
-            <p className="mb-6 max-w-md text-zinc-400">{active.bio}</p>
+            <p className="mb-4 max-w-md text-zinc-400">{active.bio}</p>
+
+            <div className="mb-6 flex flex-wrap gap-1.5">
+              {active.competitions.map((comp) => (
+                <span
+                  key={comp}
+                  className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-300"
+                >
+                  {comp}
+                </span>
+              ))}
+            </div>
 
             <blockquote
               className="mb-8 rounded-xl border-l-2 px-4 py-3 text-sm italic text-zinc-200"

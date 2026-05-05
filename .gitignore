@@ -4,6 +4,8 @@
 /node_modules
 /bot/node_modules
 /bot/dist
+/agents/node_modules
+/agents/dist
 /.pnp
 .pnp.*
 .yarn/*
@@ -37,6 +39,7 @@ yarn-error.log*
 !.env.local.example
 !.env.example
 !bot/.env.example
+!agents/.env.example
 
 # vercel
 .vercel

@@ -70,7 +70,7 @@ export function FreeMatchBanner() {
             <div className="mb-4 flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-400">
                 <span className="size-2 animate-pulse rounded-full bg-emerald-400" />
-                Prochain match · {relative} · {match.kickoff}
+                Prochain event · {relative} · {match.kickoff}
               </span>
               <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-zinc-300">
                 <Clock className="size-3" />
@@ -89,13 +89,13 @@ export function FreeMatchBanner() {
               </span>
             </h3>
             <p className="mb-6 max-w-lg text-balance text-zinc-400">
-              Inscris-toi en 30 secondes — pas de CB. Tu reçois l&apos;analyse
+              Inscris-toi en 30 secondes, pas de CB. Tu reçois l&apos;analyse
               complète de{" "}
               <span className="font-semibold text-white">
                 {match.coachName}
               </span>{" "}
-              sur Telegram avant le coup d&apos;envoi : pari, cote,
-              raisonnement, mise conseillée. Une seule fois. Pour ce match.
+              sur Telegram avant le top départ : pari, cote,
+              raisonnement, mise conseillée. Cadeau de bienvenue.
             </p>
 
             <a
@@ -110,7 +110,7 @@ export function FreeMatchBanner() {
               <span className="flex items-center gap-1.5">
                 <span className="size-1.5 animate-pulse rounded-full bg-emerald-400" />
                 <span className="font-bold text-emerald-400">{unlocked}</span>{" "}
-                parieurs débloqués pour ce match
+                parieurs débloqués pour cet event
               </span>
               <span className="text-zinc-700">·</span>
               <span>Sans CB · 7 jours d&apos;essai · annulation libre</span>

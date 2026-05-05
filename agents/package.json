@@ -1,0 +1,38 @@
+{
+  "name": "onze-agents",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "ingest": "tsx --env-file=.env src/jobs/ingest.ts",
+    "analyze": "tsx --env-file=.env src/jobs/analyze.ts",
+    "ingest:foot": "tsx --env-file=.env src/jobs/ingest.ts --sport foot",
+    "ingest:basket": "tsx --env-file=.env src/jobs/ingest.ts --sport basket",
+    "ingest:tennis": "tsx --env-file=.env src/jobs/ingest.ts --sport tennis",
+    "ingest:ufc": "tsx --env-file=.env src/jobs/ingest.ts --sport ufc",
+    "analyze:foot": "tsx --env-file=.env src/jobs/analyze.ts --sport foot",
+    "analyze:basket": "tsx --env-file=.env src/jobs/analyze.ts --sport basket",
+    "analyze:tennis": "tsx --env-file=.env src/jobs/analyze.ts --sport tennis",
+    "analyze:ufc": "tsx --env-file=.env src/jobs/analyze.ts --sport ufc"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.94.0",
+    "@supabase/supabase-js": "^2.74.0",
+    "cheerio": "^1.0.0",
+    "csv-parse": "^5.5.6",
+    "openai": "^4.83.0",
+    "p-limit": "^6.2.0",
+    "pino": "^9.5.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

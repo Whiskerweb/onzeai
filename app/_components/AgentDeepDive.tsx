@@ -58,7 +58,7 @@ export function AgentDeepDive({ coach, reverse = false }: Props) {
               {coach.name}
             </div>
             <div className="mt-1 flex items-center justify-center gap-1.5 text-xs text-zinc-400">
-              <MapPin className="size-3" /> {coach.city} · {coach.flag} {coach.league}
+              <MapPin className="size-3" /> {coach.city} · {coach.flag} {coach.sport}
             </div>
           </div>
 
@@ -73,7 +73,7 @@ export function AgentDeepDive({ coach, reverse = false }: Props) {
             </div>
             <div className="text-right">
               <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500">
-                Matchs analysés
+                Events analysés
               </div>
               <div className="text-xl font-medium text-white">
                 {coach.stats.matches.toLocaleString("fr-FR")}
@@ -90,7 +90,18 @@ export function AgentDeepDive({ coach, reverse = false }: Props) {
           <h2 className="mb-5 text-balance text-3xl font-medium leading-tight tracking-tight md:text-4xl">
             {coach.headline}
           </h2>
-          <p className="mb-6 max-w-md text-zinc-400">{coach.bio}</p>
+          <p className="mb-4 max-w-md text-zinc-400">{coach.bio}</p>
+
+          <div className="mb-6 flex flex-wrap gap-1.5">
+            {coach.competitions.map((comp) => (
+              <span
+                key={comp}
+                className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-300"
+              >
+                {comp}
+              </span>
+            ))}
+          </div>
 
           <blockquote
             className="mb-8 rounded-xl border-l-2 px-4 py-3 text-sm italic text-zinc-200"

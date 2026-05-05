@@ -33,8 +33,8 @@ export function Footer() {
           <OnzeLogo size={26} />
 
           <p className="max-w-xs text-sm text-zinc-400">
-            Cinq coachs IA, cinq championnats. Le tipster qui dort jamais, direct
-            sur Telegram.
+            4 coachs IA, 4 sports. Foot, basket, tennis, UFC — toutes les ligues majeures.
+            Direct sur Telegram.
           </p>
 
           <div className="space-y-2 text-sm text-zinc-500">
@@ -89,11 +89,10 @@ export function Footer() {
           <FooterCol
             title="Squad"
             links={[
-              "Dembefric · Ligue 1",
-              "Jack · Premier League",
-              "Belligagne · La Liga",
-              "Vlachance · Serie A",
-              "Hans · Bundesliga",
+              "Dembefric · Football",
+              "Curritique · Basket",
+              "Federace · Tennis",
+              "McTriple · UFC",
             ]}
           />
           <FooterCol
