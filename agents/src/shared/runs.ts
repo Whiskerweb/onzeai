@@ -5,7 +5,7 @@ import { logger } from "./logger.js";
 // Helpers pour public.agent_runs : démarrer/finir/erreurer un run, et un
 // wrapper withRun() qui s'occupe du try/finally + métriques.
 
-export type RunKind = "ingest" | "analyze";
+export type RunKind = "ingest" | "analyze" | "backtest" | "clv";
 
 export type RunMetrics = Record<string, number | string>;
 

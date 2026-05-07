@@ -83,11 +83,18 @@ Endpoint HTTP alternatif (automation externe) : `POST /api/picks` avec header
 
 ## Séparation des rôles : Claude vs Gemma
 
-- **Claude (cette session)** = source des paris officiels. Push via la CLI ci-dessus.
-- **Gemma (OpenRouter, dans le bot)** = chat conversationnel. Discute des paris déjà
-  partagés, NE propose JAMAIS de nouveau ticket. Si l'user demande un pari dans le
-  chat, Gemma redirige : « Mes paris officiels arrivent en push ». Voir le system
-  prompt dans `bot/src/lib/prompt.ts`.
+- **Claude Opus (Claude Code via abo Max)** = source des paris officiels.
+  Le pipeline `agents/src/jobs/analyze.ts` invoke `claude -p` en headless sur la
+  VM (auth via abo Max Lucas, login 1×). Inclus dans abo, pas de facturation
+  token. Skills coach (`~/.claude/skills/dembefric-foot/` etc.) sont auto-
+  découverts. Push manuel possible aussi via `scripts/push-pick.ts`.
+- **Backend alternatif API** : si tu set `ANTHROPIC_API_KEY` et `LLM_BACKEND=api`,
+  le pipeline utilise le SDK Anthropic à la place du CLI (facturé au token,
+  cache_control ephemeral dispo, recommandé pour scale > 1k users).
+- **Gemma (OpenRouter, dans le bot)** = chat conversationnel. Discute des paris
+  déjà partagés, NE propose JAMAIS de nouveau ticket. Si l'user demande un pari
+  dans le chat, Gemma redirige : « Mes paris officiels arrivent en push ». Voir
+  le system prompt dans `bot/src/lib/prompt.ts`.
 
 ## Cycle de vie d'un user
 
@@ -236,6 +243,86 @@ La copie embarquée `agents/sports-bettor-pro.md` doit rester en sync :
 ```bash
 cp ~/.claude/skills/sports-bettor-pro/SKILL.md agents/sports-bettor-pro.md
 ```
+
+### Skills coach (cascade 4-layers)
+
+Le system prompt envoyé à Claude Haiku/Sonnet est assemblé dans
+`agents/src/shared/llm.ts:71` comme une cascade :
+
+```
+[sports-bettor-pro.md]   méthodo universelle (CLV/EV/Kelly/lingo/red flags)
+    ↓
+[<coach>.md]             persona coach + edges fine + few-shot
+    ↓
+[<sport>.addon.ts]       data hints DB (colonnes/jointures Supabase)
+    ↓
+[OUTPUT_SCHEMA_HINT]     contrat zod AnalysisOutput
+```
+
+Les 3 premières couches sont cachées (`cache_control: ephemeral`) — stables
+inter-fixtures d'un même sport, donc 90% des input tokens sont en cache hit
+après le 1er appel.
+
+| Coach | Sport | Source skill | Copie embarquée | Statut |
+|---|---|---|---|---|
+| Dembefric | foot | `~/.claude/skills/dembefric-foot/SKILL.md` | `agents/skills/dembefric-foot.md` | ✅ écrit |
+| Curritique | basket | `~/.claude/skills/curritique-basket/SKILL.md` | `agents/skills/curritique-basket.md` | ✅ écrit |
+| Federace | tennis | `~/.claude/skills/federace-tennis/SKILL.md` | `agents/skills/federace-tennis.md` | ✅ écrit |
+| McTriple | ufc | `~/.claude/skills/mctriple-ufc/SKILL.md` | `agents/skills/mctriple-ufc.md` | ✅ écrit |
+
+Si la copie d'un skill coach est absente (commits 2/3/4 pas faits), `loadCoachSkill()`
+retourne `""` + log warn et la cascade tourne sans le layer 2 — le sport
+fonctionne avec global skill + addon TS seuls (comportement antérieur).
+
+#### Sync workflow
+
+```bash
+# Édit du skill source
+$EDITOR ~/.claude/skills/dembefric-foot/SKILL.md
+
+# Re-sync vers agents/
+cd agents && npm run sync-skills
+
+# Vérifier (CI / pre-commit)
+cd agents && npm run sync-skills:check
+```
+
+Le pre-commit hook bloque le commit si drift détecté.
+
+#### Telemetry skills (migration 0005)
+
+`supabase/migrations/0005_skill_coach_telemetry.sql` ajoute :
+- Colonnes `analyses.dry_run`, `closing_price`, `closing_book`, `clv_pp`,
+  `result`, `settled_at`, `coach_voice_compliant`, `sanity_check_passed`.
+- Table `backtest_runs` : variants A/B pour mesurer effet skill avant rollout.
+- Vue `agent_performance` : agrégat hebdo par sport (pushes, avg_edge, avg_clv,
+  roi_unit, hit_rate).
+
+Jobs associés :
+
+```bash
+# Backtest A/B avant rollout d'un skill coach
+cd agents && npx tsx --env-file=.env src/jobs/backtest-skill.ts --sport foot --n 30
+
+# Daily : compute CLV pour les analyses push dont la fixture est finished
+cd agents && npx tsx --env-file=.env src/jobs/compute-clv.ts
+```
+
+Critère go skill rollout : variant B (avec skill) − variant A (sans) ≥ +0.5pp
+de CLV simulé sur 30 fixtures.
+
+#### Ordre des commits skill (rollout coach par coach)
+
+| Phase | Coach | Validation requise avant phase suivante |
+|---|---|---|
+| 1 (en cours) | Dembefric foot | backtest CLV ≥ +0.5pp + 7j shadow DRY_RUN=1 OK |
+| 2 | Curritique basket | idem |
+| 3 | Federace tennis | idem |
+| 4 | McTriple ufc | idem |
+
+Foot d'abord car volume picks max → N=30 atteint en ~5 sem, signal stat le
+plus rapide. Si phase 1 fail au backtest, on itère le skill Dembefric avant
+de répliquer le template aux 3 autres.
 
 ### Status (2026-05-05)
 

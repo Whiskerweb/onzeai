@@ -1,0 +1,11 @@
+[Unit]
+Description=Onze.ai compute CLV (daily 02:00 UTC après que fixtures de la veille soient finished)
+
+[Timer]
+OnCalendar=*-*-* 02:00:00
+RandomizedDelaySec=600
+Persistent=true
+Unit=onze-agents@compute-clv.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,14 @@
+[Unit]
+Description=Onze.ai basket ingest (NBA timezone — every 6h, denser pre-tipoff)
+
+[Timer]
+# NBA tipoffs ET 19:00-22:30, soit 00:00-04:30 UTC. Cadence dense fin de journée UTC.
+# 06:00, 12:00 UTC = data overnight + matin. 18:00, 21:00, 23:30 UTC = pre-tipoff window.
+OnCalendar=*-*-* 06,12,18,21,23:00:00
+OnCalendar=*-*-* 23:30:00
+RandomizedDelaySec=180
+Persistent=true
+Unit=onze-agents@ingest-basket.service
+
+[Install]
+WantedBy=timers.target

@@ -49,10 +49,12 @@ export async function analyzeFoot(opts: { fixtureId?: string } = {}): Promise<vo
     for (const fx of fixtures) {
       try {
         const context = await buildContext(fx.id);
-        const { output, inputTokens, outputTokens, model } = await analyzeFixture({
+        const { output, inputTokens, outputTokens, cacheCreationTokens, cacheReadTokens, model } = await analyzeFixture({
+          sport: "foot",
           sportAddon: FOOT_ANALYZE_ADDON,
           contextJson: context,
         });
+        logger.debug({ fixtureId: fx.id, inputTokens, outputTokens, cacheCreationTokens, cacheReadTokens, model }, "analyze:foot:llm_usage");
 
         // Insert analyses row systématiquement (audit complet)
         const { data: analysis, error: insErr } = await sb
@@ -74,6 +76,10 @@ export async function analyzeFoot(opts: { fixtureId?: string } = {}): Promise<vo
             expected_clv_pp: output.expected_clv_pp,
             decision: output.decision,
             reasoning: output.reasoning_long,
+            analysis_card: output.analysis_card ?? null,
+            dry_run: cfg.DRY_RUN,
+            coach_voice_compliant: output.coach_voice_compliant ?? null,
+            sanity_check_passed: output.sanity_check_passed ?? null,
           })
           .select("id")
           .single();
@@ -93,6 +99,12 @@ export async function analyzeFoot(opts: { fixtureId?: string } = {}): Promise<vo
           output.recommended_price !== null;
 
         if (!shouldPush) continue;
+
+        // DRY_RUN : pas de push réel, juste log + skip
+        if (cfg.DRY_RUN) {
+          logger.info({ fixtureId: fx.id, edge: output.edge_pct, dry_run: true }, "analyze:foot:dry_run_skip_push");
+          continue;
+        }
 
         // Cap journalier par coach
         if (await dailyCapReached("foot")) {

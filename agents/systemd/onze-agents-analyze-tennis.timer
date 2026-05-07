@@ -1,0 +1,11 @@
+[Unit]
+Description=Onze.ai tennis analyze (post-ingest 30min)
+
+[Timer]
+OnCalendar=*-*-* 02,06,10,14,18,22:30:00
+RandomizedDelaySec=180
+Persistent=true
+Unit=onze-agents@analyze-tennis.service
+
+[Install]
+WantedBy=timers.target

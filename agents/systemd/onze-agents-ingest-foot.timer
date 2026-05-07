@@ -1,0 +1,12 @@
+[Unit]
+Description=Onze.ai foot ingest (every 4h)
+
+[Timer]
+# Toutes les 4h, offset 5min après l'heure pile pour éviter rush ingest+analyze
+OnCalendar=*-*-* 00,04,08,12,16,20:05:00
+RandomizedDelaySec=120
+Persistent=true
+Unit=onze-agents@ingest-foot.service
+
+[Install]
+WantedBy=timers.target

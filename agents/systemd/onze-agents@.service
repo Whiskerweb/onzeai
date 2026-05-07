@@ -1,0 +1,37 @@
+# Template service unit. Instances : onze-agents@ingest-foot, onze-agents@analyze-foot, etc.
+# Le %i est split par le helper script /opt/onze-agents/run.sh.
+#
+# Install:
+#   sudo cp onze-agents@.service /etc/systemd/system/
+#   sudo cp onze-agents-*.timer  /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now onze-agents-ingest-foot.timer
+#   (idem pour les 7 autres timers)
+
+[Unit]
+Description=Onze.ai agents — %i
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=lucasroncey
+Group=lucasroncey
+WorkingDirectory=/opt/onze-agents
+EnvironmentFile=/opt/onze-agents/.env
+ExecStart=/usr/bin/env bash /opt/onze-agents/run.sh %i
+StandardOutput=journal
+StandardError=journal
+
+# Sécurité (lecture FS limitée)
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/opt/onze-agents
+ProtectHome=true
+
+# Limites ressources
+MemoryMax=1G
+CPUQuota=80%
+
+# Pas de [Install] : ce sont les .timer qui activent les services.

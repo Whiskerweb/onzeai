@@ -1,0 +1,12 @@
+[Unit]
+Description=Onze.ai UFC analyze (post-ingest 30min)
+
+[Timer]
+OnCalendar=Mon..Fri *-*-* 12:30:00
+OnCalendar=Sat *-*-* 02,06,10,14,18,22:30:00
+RandomizedDelaySec=300
+Persistent=true
+Unit=onze-agents@analyze-ufc.service
+
+[Install]
+WantedBy=timers.target

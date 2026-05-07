@@ -1,0 +1,11 @@
+[Unit]
+Description=Onze.ai tennis ingest (every 4h)
+
+[Timer]
+OnCalendar=*-*-* 02,06,10,14,18,22:00:00
+RandomizedDelaySec=180
+Persistent=true
+Unit=onze-agents@ingest-tennis.service
+
+[Install]
+WantedBy=timers.target

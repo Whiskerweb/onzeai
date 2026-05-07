@@ -6,6 +6,10 @@
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
+    "sync-skills": "node scripts/sync-skills.mjs",
+    "sync-skills:check": "node scripts/sync-skills.mjs --check",
+    "backtest-skill": "tsx --env-file=.env src/jobs/backtest-skill.ts",
+    "compute-clv": "tsx --env-file=.env src/jobs/compute-clv.ts",
     "ingest": "tsx --env-file=.env src/jobs/ingest.ts",
     "analyze": "tsx --env-file=.env src/jobs/analyze.ts",
     "ingest:foot": "tsx --env-file=.env src/jobs/ingest.ts --sport foot",

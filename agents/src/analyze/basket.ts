@@ -45,6 +45,7 @@ export async function analyzeBasket(opts: { fixtureId?: string } = {}): Promise<
       try {
         const context = await buildContext(fx.id);
         const { output, inputTokens, outputTokens, model } = await analyzeFixture({
+          sport: "basket",
           sportAddon: BASKET_ANALYZE_ADDON,
           contextJson: context,
         });
@@ -68,6 +69,10 @@ export async function analyzeBasket(opts: { fixtureId?: string } = {}): Promise<
             expected_clv_pp: output.expected_clv_pp,
             decision: output.decision,
             reasoning: output.reasoning_long,
+            analysis_card: output.analysis_card ?? null,
+            dry_run: cfg.DRY_RUN,
+            coach_voice_compliant: output.coach_voice_compliant ?? null,
+            sanity_check_passed: output.sanity_check_passed ?? null,
           })
           .select("id")
           .single();
@@ -86,6 +91,11 @@ export async function analyzeBasket(opts: { fixtureId?: string } = {}): Promise<
           output.recommended_price !== null;
 
         if (!shouldPush) continue;
+
+        if (cfg.DRY_RUN) {
+          logger.info({ fixtureId: fx.id, edge: output.edge_pct, dry_run: true }, "analyze:basket:dry_run_skip_push");
+          continue;
+        }
 
         if (await dailyCapReached("basket")) {
           logger.warn({ fixtureId: fx.id }, "analyze:basket:daily_cap_reached_skip");

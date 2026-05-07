@@ -92,13 +92,16 @@ export async function broadcastRoute(c: HonoContext) {
   return c.json({ delivered, errors });
 }
 
+const PUBLIC_SITE = process.env.PUBLIC_SITE_URL ?? "https://akyra.io";
+
 function formatPick(p: PickRecord): string {
   const coach = isCoachId(p.coach_id) ? COACHES[p.coach_id] : null;
   const header = coach ? `${coach.flag} *${coach.name}* (${coach.sport})` : "Onze.ai";
   const cote = p.cote != null ? ` · cote *×${p.cote}*` : "";
   const fixture = p.fixture_id ? `\n_${p.fixture_id}_` : "";
   const reasoning = p.reasoning ? `\n\n${p.reasoning}` : "";
-  return `${header}${fixture}\n\n🎯 *${escapeMd(p.pick_text)}*${cote}${reasoning}\n\n_18+ — joue responsable._`;
+  const fiche = `\n\n📊 [Voir l'analyse complète](${PUBLIC_SITE}/picks/${p.id})`;
+  return `${header}${fixture}\n\n🎯 *${escapeMd(p.pick_text)}*${cote}${reasoning}${fiche}\n\n_18+ — joue responsable._`;
 }
 
 function escapeMd(s: string): string {

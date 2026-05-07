@@ -1,0 +1,12 @@
+[Unit]
+Description=Onze.ai basket analyze (post-ingest, 25min après)
+
+[Timer]
+OnCalendar=*-*-* 06,12,18,21,23:25:00
+OnCalendar=*-*-* 23:55:00
+RandomizedDelaySec=180
+Persistent=true
+Unit=onze-agents@analyze-basket.service
+
+[Install]
+WantedBy=timers.target

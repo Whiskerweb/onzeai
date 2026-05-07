@@ -7,10 +7,13 @@ const Env = z.object({
   PICKS_INGEST_URL: z.string().url(),
   PICKS_INGEST_SECRET: z.string().min(8),
 
-  ANTHROPIC_API_KEY: z.string().min(20),
+  // ANTHROPIC_API_KEY optionnel : si absent, le backend bascule en CLI (claude code via abo Max)
+  ANTHROPIC_API_KEY: z.string().optional(),
   ANALYZE_MODEL: z.string().default("claude-haiku-4-5"),
+  LLM_BACKEND: z.enum(["api", "cli", "auto"]).default("auto"),
+  CLAUDE_CLI_PATH: z.string().optional(),  // override path vers le binaire claude (default: PATH lookup)
 
-  OPENAI_API_KEY: z.string().min(20),
+  OPENAI_API_KEY: z.string().optional(),
   EMBED_MODEL: z.string().default("text-embedding-3-small"),
 
   ODDS_API_KEY: z.string().optional(),

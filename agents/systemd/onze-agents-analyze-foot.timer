@@ -1,0 +1,12 @@
+[Unit]
+Description=Onze.ai foot analyze (every 4h, 30min after ingest)
+Requires=onze-agents-ingest-foot.timer
+
+[Timer]
+OnCalendar=*-*-* 00,04,08,12,16,20:35:00
+RandomizedDelaySec=120
+Persistent=true
+Unit=onze-agents@analyze-foot.service
+
+[Install]
+WantedBy=timers.target

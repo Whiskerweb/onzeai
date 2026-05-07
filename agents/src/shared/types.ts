@@ -19,6 +19,9 @@ export const AnalysisOutput = z.object({
   pick_text: z.string().min(3),                   // formulation FR à pousser via /api/picks
   reasoning_short: z.string().min(10),             // 1-2 phrases voix sports-bettor-pro pour le `reasoning` du pick
   reasoning_long: z.string(),                      // détaillé pour public.analyses.reasoning
+  analysis_card: z.string().optional(),            // fiche markdown 10 sections (football-pronostics) — rendue sur /picks/[id]
+  coach_voice_compliant: z.boolean().optional(),   // self-check : pick_text/reasoning_short matchent la voix coach
+  sanity_check_passed: z.boolean().optional(),     // self-check : p_model dans bornes plausibles du sport
 });
 export type AnalysisOutput = z.infer<typeof AnalysisOutput>;
 

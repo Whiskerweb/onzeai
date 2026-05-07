@@ -1,0 +1,14 @@
+[Unit]
+Description=Onze.ai UFC ingest (Mon-Fri quotidien 12:00 UTC + samedi event-day plus dense)
+
+[Timer]
+# Lundi à vendredi 12:00 UTC : daily check des cards à venir
+OnCalendar=Mon..Fri *-*-* 12:00:00
+# Samedi (event-day typique UFC) toutes les 4h
+OnCalendar=Sat *-*-* 02,06,10,14,18,22:00:00
+RandomizedDelaySec=300
+Persistent=true
+Unit=onze-agents@ingest-ufc.service
+
+[Install]
+WantedBy=timers.target
